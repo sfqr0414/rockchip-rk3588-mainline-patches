@@ -729,11 +729,17 @@ void rkvenc_hw_clk_on(struct rkvenc_dev *enc)
 	rkvenc_clk_safe_enable(enc->core_clk_info.clk);
 }
 
+static void rkvenc_clk_safe_disable(struct clk *clk)
+{
+	if (clk)
+		clk_disable_unprepare(clk);
+}
+
 void rkvenc_hw_clk_off(struct rkvenc_dev *enc)
 {
-	clk_disable_unprepare(enc->aclk_info.clk);
-	clk_disable_unprepare(enc->hclk_info.clk);
-	clk_disable_unprepare(enc->core_clk_info.clk);
+	rkvenc_clk_safe_disable(enc->aclk_info.clk);
+	rkvenc_clk_safe_disable(enc->hclk_info.clk);
+	rkvenc_clk_safe_disable(enc->core_clk_info.clk);
 }
 
 /* ---- HW init during probe ---- */

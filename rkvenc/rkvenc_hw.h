@@ -97,6 +97,7 @@ extern unsigned int rkvenc_debug;
 #define MPP_MAX_MSG_NUM			32
 #define MPP_MAX_REG_TRANS_NUM		128
 #define MPP_WORK_TIMEOUT_DELAY		200
+/* Session buffer limits: RKVENC uses 40, but DMA buffer array size is 60 for compatibility */
 #define RKVENC_SESSION_MAX_BUFFERS	40
 #define RKVENC_MAX_CORE_NUM		2
 #define RKVENC_MAX_DCHS_ID		16
@@ -329,6 +330,7 @@ struct reg_offset_info {
 };
 
 /* ---- DMA buffer management ---- */
+/* Maximum DMA buffer array size - larger than RKVENC_SESSION_MAX_BUFFERS for safety margin */
 #define MPP_SESSION_MAX_BUFFERS		60
 
 struct rkvenc_dma_buffer {

@@ -364,7 +364,7 @@ static void rkvenc2_set_rcbbuf(struct rkvenc_dev *enc,
 					u32 be = hw->reg_msg[c].base_e;
 					u32 addr = reg_idx * sizeof(u32);
 
-					if (addr >= bs && addr < be) {
+					if (addr >= bs && addr <= be) {
 						reg = (u32 *)((u8 *)task->reg[c].data + (addr - bs));
 						*reg = enc->sram_iova + rcb_offset;
 						break;
@@ -541,7 +541,7 @@ static int rkvenc_result(struct rkvenc_dev *mpp,
 		/* Find class for this read request offset */
 		for (c = 0; c < hw->reg_class; c++) {
 			if (req->offset >= hw->reg_msg[c].base_s &&
-			    req->offset < hw->reg_msg[c].base_e) {
+			    req->offset <= hw->reg_msg[c].base_e) {
 				class_base = hw->reg_msg[c].base_s;
 				reg = (u32 *)((u8 *)task->reg[c].data + (req->offset - class_base));
 				break;
