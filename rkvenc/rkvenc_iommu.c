@@ -18,6 +18,7 @@
 #include <linux/slab.h>
 #include <linux/pm_runtime.h>
 
+#include "compat.h"
 #include "rkvenc_hw.h"
 
 /* ---- DMA buffer find ---- */
@@ -420,6 +421,13 @@ struct rkvenc_iommu_info *rkvenc_iommu_probe(struct device *dev)
 	domain = iommu_get_domain_for_dev(dev);
 	if (!domain) {
 		ret = -EINVAL;
+		goto err_put_group;
+	}
+
+	/* Set DMA mask for 40-bit addressing support on RK3588 */
+	ret = dma_set_mask_and_coherent(dev, RKVENC_DMA_BIT_MASK);
+	if (ret) {
+		dev_err(dev, "failed to set DMA mask: %d\n", ret);
 		goto err_put_group;
 	}
 
