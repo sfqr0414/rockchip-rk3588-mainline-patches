@@ -879,3 +879,5 @@ void rkvenc_hw_clk_off(struct rkvenc_dev *enc);
 extern struct rkvenc_hw_info rkvenc_v2_hw_info;
 extern const struct rkvenc_trans_info trans_rkvenc_v2[];
 
+#endif /* __RKVENC_HW_H__ */
+

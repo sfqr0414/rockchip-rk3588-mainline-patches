@@ -152,8 +152,8 @@ static void rkvenc_update_req(struct rkvenc_task *task, u32 class,
 	dst->flags = src->flags;
 	dst->offset = s;
 	dst->size = e - s + sizeof(u32);
-	/* Adjust data pointer for the offset */
-	dst->data = (void __user *)((u8 __user *)src->data + (s - req_s));
+	/* Adjust data pointer for the offset (data is stored as integer __u64 in mpp_request) */
+	dst->data = src->data + (s - req_s);
 }
 
 /* ---- Extract RCB info ---- */
@@ -167,7 +167,7 @@ static int rkvenc2_extract_rcb_info(struct rkvenc2_rcb_info *rcb_inf,
 		rkvenc_err("count %d, max_size %d\n", cnt, max_size);
 		return -EINVAL;
 	}
-	if (copy_from_user(rcb_inf->elem, req->data, req->size)) {
+	if (copy_from_user(rcb_inf->elem, (const void __user *)(unsigned long)req->data, req->size)) {
 		rkvenc_err("copy_from_user failed\n");
 		return -EINVAL;
 	}
@@ -213,7 +213,7 @@ static int rkvenc_extract_task_msg(struct rkvenc_session *session,
 					ret = -EINVAL;
 					goto fail;
 				}
-				if (copy_from_user(data, wreq->data, wreq->size)) {
+				if (copy_from_user(data, (const void __user *)(unsigned long)wreq->data, wreq->size)) {
 					rkvenc_err("copy_from_user fail, offset %08x\n", wreq->offset);
 					ret = -EIO;
 					goto fail;
@@ -553,7 +553,7 @@ static int rkvenc_result(struct rkvenc_dev *mpp,
 			return -EINVAL;
 		}
 
-		if (copy_to_user(req->data, reg, req->size)) {
+		if (copy_to_user((void __user *)(unsigned long)req->data, reg, req->size)) {
 			rkvenc_err("copy_to_user reg fail\n");
 			return -EIO;
 		}
@@ -674,20 +674,20 @@ static int rkvenc_process_request(struct rkvenc_session *session,
 	case MPP_CMD_QUERY_HW_SUPPORT: {
 		u32 val = session->srv->hw_support;
 
-		if (put_user(val, (u32 __user *)req->data))
+		if (put_user(val, (u32 __user *)(unsigned long)req->data))
 			return -EFAULT;
 	} break;
 	case MPP_CMD_QUERY_HW_ID: {
 		struct rkvenc_dev *mpp = session->mpp;
 		u32 val = mpp ? mpp->hw_info->hw.hw_id : 0;
 
-		if (put_user(val, (u32 __user *)req->data))
+		if (put_user(val, (u32 __user *)(unsigned long)req->data))
 			return -EFAULT;
 	} break;
 	case MPP_CMD_INIT_CLIENT_TYPE: {
 		u32 client_type;
 
-		if (get_user(client_type, (u32 __user *)req->data))
+if (get_user(client_type, (u32 __user *)(unsigned long)req->data))
 			return -EFAULT;
 
 		session->device_type = client_type;
@@ -719,7 +719,7 @@ static int rkvenc_process_request(struct rkvenc_session *session,
 			rkvenc_err("trans count %d too large\n", cnt);
 			return -EINVAL;
 		}
-		if (copy_from_user(session->trans_table, req->data, req->size)) {
+		if (copy_from_user(session->trans_table, (const void __user *)(unsigned long)req->data, req->size)) {
 			rkvenc_err("copy_from_user trans_table failed\n");
 			return -EFAULT;
 		}
@@ -740,7 +740,7 @@ static int rkvenc_process_request(struct rkvenc_session *session,
 		if (session->mpp && session->dma) {
 			u32 fd;
 
-			if (get_user(fd, (u32 __user *)req->data))
+			if (get_user(fd, (u32 __user *)(unsigned long)req->data))
 				return -EFAULT;
 
 			rkvenc_iommu_down_read(session->mpp->iommu_info);
@@ -752,7 +752,7 @@ static int rkvenc_process_request(struct rkvenc_session *session,
 		if (session->dma) {
 			u32 fd;
 
-			if (get_user(fd, (u32 __user *)req->data))
+			if (get_user(fd, (u32 __user *)(unsigned long)req->data))
 				return -EFAULT;
 			rkvenc_dma_release_fd(session->dma, fd);
 		}
@@ -828,7 +828,7 @@ next:
 	req->flags = msg_v1.flags;
 	req->size = msg_v1.size;
 	req->offset = msg_v1.offset;
-	req->data = (void __user *)(unsigned long)msg_v1.data_ptr;
+req->data = (u64)msg_v1.data_ptr;
 
 	/* Update session flags */
 	session->msg_flags = msg_v1.flags;
@@ -1193,3 +1193,4 @@ int rkvenc_service_remove(struct platform_device *pdev)
 	unregister_chrdev_region(srv->dev_id, 1);
 
 	return 0;
+}

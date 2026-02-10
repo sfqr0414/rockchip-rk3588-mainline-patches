@@ -52,6 +52,8 @@
 #define MPP_CMD_RELEASE_FD		(MPP_CMD_CONTROL_BASE + 2)
 #define MPP_CMD_SEND_CODEC_INFO		(MPP_CMD_CONTROL_BASE + 3)
 #define MPP_CMD_CONTROL_BUTT		(MPP_CMD_CONTROL_BASE + 4)
+/* Generic sentinel for command range validation */
+#define MPP_CMD_BUTT			MPP_CMD_CONTROL_BUTT
 
 /* ---- MPP message flags ---- */
 #define MPP_FLAGS_MULTI_MSG		BIT(0)

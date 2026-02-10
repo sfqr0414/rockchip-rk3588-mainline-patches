@@ -161,7 +161,7 @@ static int rkvenc_get_class_msg(struct rkvenc_task *task,
 		if (addr >= base_s && addr < base_e) {
 			msg->offset = base_s;
 			msg->size = task->reg[i].size;
-			msg->data = task->reg[i].data;
+			msg->data = (u64)(unsigned long)task->reg[i].data;
 			return 0;
 		}
 	}
@@ -883,3 +883,5 @@ int rkvenc_hw_remove(struct rkvenc_dev *enc)
 	device_init_wakeup(enc->dev, false);
 	pm_runtime_disable(enc->dev);
 	return 0;
+}
+

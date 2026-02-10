@@ -461,3 +461,5 @@ int rkvenc_iommu_remove(struct rkvenc_iommu_info *info)
 	platform_device_put(info->pdev);
 
 	return 0;
+}
+

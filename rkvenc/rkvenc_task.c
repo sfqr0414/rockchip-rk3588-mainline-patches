@@ -245,7 +245,7 @@ int rkvenc_extract_reg_offset_info(struct reg_offset_info *off_inf,
 			   cnt, off_inf->cnt, max_size);
 		return -EINVAL;
 	}
-	if (copy_from_user(&off_inf->elem[off_inf->cnt], req->data, req->size)) {
+	if (copy_from_user(&off_inf->elem[off_inf->cnt], (const void __user *)(unsigned long)req->data, req->size)) {
 		rkvenc_err("copy_from_user failed\n");
 		return -EINVAL;
 	}
@@ -298,3 +298,4 @@ void rkvenc_task_timeout_work(struct work_struct *work_s)
 	enable_irq(mpp->irq);
 
 	kthread_queue_work(&mpp->queue->worker, &mpp->work);
+}
